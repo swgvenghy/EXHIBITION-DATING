@@ -57,11 +57,21 @@ export const signUpProfile = async ({
   return data;
 };
 
+export const login = async ({ id, name }: { id: number; name: string }) => {
+  const { data, error } = await supabase
+    .from("users")
+    .select("id, name, gender, check_num")
+    .eq("id", id)
+    .eq("name", name);
+  if (error) throw error;
+  return data;
+};
+
 export interface ProfileProps {
   nickname: string;
   mbti: string;
   description: string;
-  instaProfile: string;
+  insta_profile: string;
 }
 
 export const getAllPropfile = async ({
@@ -83,17 +93,26 @@ export const getAllPropfile = async ({
 export const matchingUpdate = async ({
   userId,
   targetId,
+  checkNum,
 }: {
   userId: number;
   targetId: number;
+  checkNum: number;
 }) => {
   const { data, error } = await supabase
     .from("matching")
     .insert([{ user_id: userId, target_user_id: targetId }])
     .select();
 
-  if (error) throw error;
-  return data;
+  const { data: userData, error: userError } = await supabase
+    .from("users")
+    .update({ check_num: checkNum })
+    .eq("id", userId)
+    .select();
+
+  if (error || userError) throw error || userError;
+
+  return { data, userData };
 };
 
 export const getMatchesWithProfile = async (userId: string) => {
