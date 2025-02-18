@@ -23,7 +23,7 @@ function App() {
         </button>
         <button
           onClick={() => {
-            navigate("/dashboard");
+            navigate("/login");
           }}
           className=" w-64 flex items-center justify-center py-5 font-bold text-2xl shadow-xl rounded-2xl"
         >
