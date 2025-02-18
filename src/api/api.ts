@@ -57,6 +57,13 @@ export const signUpProfile = async ({
   return data;
 };
 
+export interface ProfileProps {
+  nickname: string;
+  mbti: string;
+  description: string;
+  instaProfile: string;
+}
+
 export const getAllPropfile = async ({
   startPage,
   endPage,
@@ -69,8 +76,8 @@ export const getAllPropfile = async ({
     .select("nickname, mbti, description, insta_profile")
     .range(startPage, endPage);
 
-  if (error) throw error;
-  return data;
+  if (error || null) throw error;
+  return data as unknown as ProfileProps[];
 };
 
 export const matchingUpdate = async ({
