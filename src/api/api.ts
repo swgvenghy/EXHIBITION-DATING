@@ -57,20 +57,50 @@ export const signUpProfile = async ({
   return data;
 };
 
+export const login = async ({ id, name }: { id: number; name: string }) => {
+  const { data, error } = await supabase
+    .from("users")
+    .select("id, name, gender, check_num")
+    .eq("id", id)
+    .eq("name", name);
+  if (error) throw error;
+  return data;
+};
+
+export interface ProfileProps {
+  nickname: string;
+  mbti: string;
+  description: string;
+  insta_profile: string;
+  user_id: number;
+}
+
 export const getAllPropfile = async ({
   startPage,
   endPage,
+  studentGender,
 }: {
   startPage: number;
   endPage: number;
+  studentGender: string;
 }) => {
   const { data, error } = await supabase
-    .from("profile")
-    .select("nickname, mbti, description, insta_profile")
+    .from("profile_with_gender")
+    .select("nickname, mbti, description, insta_profile, user_id")
+    .neq("gender", studentGender)
     .range(startPage, endPage);
 
   if (error) throw error;
-  return data;
+  return data as ProfileProps[];
+};
+
+export const checkNumGet = async ({ id }: { id: number }) => {
+  const { data, error } = await supabase
+    .from("user")
+    .select("check_num")
+    .eq("id", id);
+  if (error || null) throw error;
+  return data[0].check_num;
 };
 
 export const matchingUpdate = async ({
@@ -86,7 +116,15 @@ export const matchingUpdate = async ({
     .select();
 
   if (error) throw error;
-  return data;
+
+  const { data: userData, error: userError } = await supabase.rpc(
+    "increment_check_num",
+    { uid: userId }
+  );
+
+  if (userError) throw userError;
+
+  return { data, userData };
 };
 
 export const getMatchesWithProfile = async (userId: string) => {
