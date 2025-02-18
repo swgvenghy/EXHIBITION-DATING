@@ -4,7 +4,7 @@ import CowSvg from "./assets/cow-logo.svg?react";
 function App() {
   const navigate = useNavigate();
   return (
-    <div className="px-4 py-6 w-dvw h-dvh flex flex-col gap-1 font-sans">
+    <div className="px-4 py-6 w-dvw h-dvh lg:items-center md:justify-center flex flex-col gap-1 font-sans">
       <CowSvg className="fill-black" />
       <h1 className=" font-semibold text-3xl">COW 5기 모집중 🔍</h1>
       <div className=" text-lg font-semibold">
