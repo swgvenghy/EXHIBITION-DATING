@@ -50,12 +50,13 @@ export default function Login() {
 
     try {
       const data = await login({ id: Number(form.studentId), name: form.name });
-      const userCheckNum = data[0].check_num;
-      const userGender = data[0].gender;
+      const studentId = form.studentId;
+      const studentGender = data[0].gender;
+
+      const encryptedQuery = btoa(studentId);
+      const genderQuery = btoa(studentGender);
       navigate(
-        `/dashboard?gender=${userGender}&checkNum=${userCheckNum}&studentId=${Number(
-          form.studentId
-        )}`
+        `/dashboard?studentId=${encryptedQuery}&studentGender=${genderQuery}`
       );
     } catch {
       setErrors((prev) => ({

@@ -5,7 +5,12 @@ import {
 } from "@radix-ui/react-icons";
 import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { getAllPropfile, ProfileProps } from "../api/api";
+import {
+  getAllPropfile,
+  matchingUpdate,
+  checkNumGet,
+  ProfileProps,
+} from "../api/api";
 import {
   Dialog,
   DialogTrigger,
@@ -16,31 +21,88 @@ import {
   DialogFooter,
 } from "../components/ui/dialog";
 import { throttle } from "../lib/utils";
+import { toast } from "sonner";
+
+type ProfileWithCheckInsta = ProfileProps & { checkInsta: boolean };
 
 export default function MatchingBoard() {
   const navigate = useNavigate();
-  const [data, setData] = useState<ProfileProps[]>([]);
+  const searchParams = new URLSearchParams(location.search);
+  const encryptedQuery = searchParams.get("studentId");
+  const genderQuery = searchParams.get("studentGender");
+  const [data, setData] = useState<ProfileWithCheckInsta[]>([]);
   const [page, setPage] = useState(0);
-  const [selectedProfile, setSelectedProfile] = useState<
-    (ProfileProps & { checkInsta: boolean }) | null
-  >(null);
+  const [userGender, setUserGender] = useState<string>("");
+  const [studentId, setStudentId] = useState<number>(0);
+  const [selectedProfile, setSelectedProfile] =
+    useState<ProfileWithCheckInsta | null>(null);
+  const [checkNum, setCheckNum] = useState<number>(0);
+
+  useEffect(() => {
+    if (encryptedQuery && genderQuery) {
+      try {
+        const studentId = atob(encryptedQuery);
+        const gender = atob(genderQuery);
+        setStudentId(Number(studentId));
+        setUserGender(gender);
+      } catch (error) {
+        console.error("복호화 실패:", error);
+      }
+    }
+  }, [encryptedQuery, genderQuery]);
+
+  useEffect(() => {
+    if (studentId) {
+      const intervalId = setInterval(() => {
+        checkNumGet({ id: studentId })
+          .then((newCheckNum) => {
+            setCheckNum(newCheckNum);
+          })
+          .catch((error) => console.error("checkNum 업데이트 실패:", error));
+      }, 50000);
+      return () => clearInterval(intervalId);
+    }
+  }, [studentId]);
+
   const observer = useRef<IntersectionObserver | null>(null);
+
+  const getCheckedProfiles = () => {
+    return JSON.parse(localStorage.getItem("checkedProfiles") || "[]");
+  };
+
+  const saveCheckedProfile = (userId: number) => {
+    const checkedProfiles: number[] = getCheckedProfiles();
+    if (!checkedProfiles.includes(userId)) {
+      checkedProfiles.push(userId);
+      localStorage.setItem("checkedProfiles", JSON.stringify(checkedProfiles));
+    }
+  };
 
   const fetchData = useCallback(async () => {
     try {
       const requestData = await getAllPropfile({
         startPage: page,
         endPage: page + 9,
+        studentGender: userGender,
       });
-      setData((prev) => [...prev, ...requestData]);
+
+      const checkedProfiles = getCheckedProfiles();
+      const updatedData = requestData.map((profile) => ({
+        ...profile,
+        checkInsta: checkedProfiles.includes(profile.user_id),
+      })) as ProfileWithCheckInsta[];
+
+      setData((prev) => [...prev, ...updatedData]);
     } catch (error) {
       console.error(error);
     }
-  }, [page]);
+  }, [page, userGender]);
 
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    if (userGender) {
+      fetchData();
+    }
+  }, [fetchData, userGender]);
 
   const handleIntersection = useMemo(
     () =>
@@ -76,9 +138,7 @@ export default function MatchingBoard() {
               <div
                 ref={idx === data.length - 1 ? lastElementRef : null}
                 className="flex flex-col w-full py-3 border border-[#CBD5E1] cursor-pointer"
-                onClick={() =>
-                  setSelectedProfile({ ...value, checkInsta: false })
-                }
+                onClick={() => setSelectedProfile(value)}
               >
                 <div className="grid grid-cols-2 px-4 pb-2">
                   <div className="font-semibold text-base">
@@ -110,11 +170,36 @@ export default function MatchingBoard() {
               <DialogFooter className="flex justify-end items-end">
                 {!selectedProfile?.checkInsta ? (
                   <button
-                    onClick={() => {
-                      setSelectedProfile((prev) =>
-                        prev ? { ...prev, checkInsta: true } : prev
-                      );
-                      console.log(selectedProfile?.insta_profile);
+                    onClick={async () => {
+                      if (checkNum >= 2) {
+                        toast("참가횟수 마감", {
+                          description:
+                            "인스타를 확인할 수 있는 기회를 모두 소진하였습니다.",
+                          action: {
+                            label: "닫기",
+                            onClick: () => console.log("Undo"),
+                          },
+                        });
+                        return;
+                      }
+                      if (selectedProfile?.user_id !== undefined) {
+                        try {
+                          await matchingUpdate({
+                            targetId: selectedProfile.user_id,
+                            userId: studentId,
+                          });
+                          setCheckNum((prev) => prev + 1);
+                          setSelectedProfile((prev) =>
+                            prev ? { ...prev, checkInsta: true } : prev
+                          );
+                          saveCheckedProfile(selectedProfile.user_id);
+                        } catch (error) {
+                          console.error("매칭 업데이트 실패:", error);
+                          toast.error(
+                            "매칭 업데이트에 실패하였습니다. 다시 시도해주세요."
+                          );
+                        }
+                      }
                     }}
                     className="border px-4 py-2 w-fit bg-[#0F172A] text-white rounded-md text-sm"
                   >
