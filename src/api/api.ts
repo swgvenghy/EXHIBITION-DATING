@@ -149,3 +149,12 @@ export const getMatchesWithProfile = async (userId: string) => {
 
   return profiles;
 };
+
+export const getIsSignedUser = async (userId: string) => {
+  const { data, error } = await supabase
+    .from("users")
+    .select("id")
+    .eq("id", userId);
+  if (error) throw error;
+  return data.length === 0 ? false : true;
+};

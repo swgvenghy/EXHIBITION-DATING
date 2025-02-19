@@ -1,12 +1,15 @@
 import { useState, ChangeEvent } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Input from "../components/input";
-import { signUpProfile } from "../api/api";
+import { signUp, signUpProfile } from "../api/api";
 
 export function SignUpProfile() {
   const navigate = useNavigate();
   const location = useLocation();
-  const studentId = new URLSearchParams(location.search).get("studentId");
+  const searchParams = new URLSearchParams(location.search);
+  const studentId = Number(searchParams.get("studentId"));
+  const studentName = searchParams.get("studentName");
+  const gender = searchParams.get("gender");
 
   const [form, setForm] = useState({
     nickname: "",
@@ -53,11 +56,16 @@ export function SignUpProfile() {
       valid = false;
     }
 
-    if (!valid || !studentId) return;
+    if (!valid || !studentId || !studentName || !gender) return;
 
     try {
+      await signUp({
+        id: studentId,
+        name: studentName,
+        gender: gender,
+      });
       await signUpProfile({
-        userId: Number(studentId),
+        userId: studentId,
         nickname: form.nickname,
         mbti: form.mbti,
         description: form.description,

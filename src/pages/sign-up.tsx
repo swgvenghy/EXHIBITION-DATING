@@ -1,6 +1,6 @@
 import { useState, ChangeEvent } from "react";
 import { useNavigate } from "react-router-dom";
-import { signUp } from "../api/api";
+import { getIsSignedUser } from "../api/api";
 import Input from "../components/input";
 import RadioSelector from "../components/ratio-selector";
 
@@ -56,12 +56,18 @@ export default function SignUp() {
     if (!valid) return;
 
     try {
-      await signUp({
-        id: Number(form.studentId),
-        name: form.name,
-        gender: form.gender,
-      });
-      navigate(`/signup/profile?studentId=${form.studentId}`);
+      const isSignedUser = await getIsSignedUser(form.studentId);
+      console.log(isSignedUser);
+      if (isSignedUser === true) {
+        setErrors((prev) => ({
+          ...prev,
+          studentId: "이미 등록된 학번입니다.",
+        }));
+      } else {
+        navigate(
+          `/signup/profile?studentId=${form.studentId}&studentName=${form.name}&gender=${form.gender}`
+        );
+      }
     } catch (error: unknown) {
       console.error(error);
       setErrors((prev) => ({
