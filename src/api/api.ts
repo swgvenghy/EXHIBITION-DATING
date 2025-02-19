@@ -96,7 +96,7 @@ export const getAllPropfile = async ({
 
 export const checkNumGet = async ({ id }: { id: number }) => {
   const { data, error } = await supabase
-    .from("user")
+    .from("users")
     .select("check_num")
     .eq("id", id);
   if (error || null) throw error;
