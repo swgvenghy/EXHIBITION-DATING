@@ -1,8 +1,4 @@
-import {
-  ChevronLeftIcon,
-  HamburgerMenuIcon,
-  InstagramLogoIcon,
-} from "@radix-ui/react-icons";
+import { ChevronLeftIcon, InstagramLogoIcon } from "@radix-ui/react-icons";
 import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -53,6 +49,12 @@ export default function MatchingBoard() {
 
   useEffect(() => {
     if (studentId) {
+      checkNumGet({ id: studentId })
+        .then((newCheckNum) => {
+          setCheckNum(newCheckNum);
+        })
+        .catch((error) => console.error("checkNum 업데이트 실패:", error));
+
       const intervalId = setInterval(() => {
         checkNumGet({ id: studentId })
           .then((newCheckNum) => {
@@ -63,7 +65,6 @@ export default function MatchingBoard() {
       return () => clearInterval(intervalId);
     }
   }, [studentId]);
-
   const observer = useRef<IntersectionObserver | null>(null);
 
   const getCheckedProfiles = () => {
@@ -123,12 +124,21 @@ export default function MatchingBoard() {
     [handleIntersection]
   );
 
+  console.log("checkNum: ", checkNum);
+
   return (
     <div className="flex flex-col">
-      <header className="flex flex-row w-full items-center justify-between py-6 px-4 shadow-md">
+      <header className="flex flex-row w-full items-center justify-between py-4 px-4 shadow-md">
         <ChevronLeftIcon width={24} height={24} onClick={() => navigate("/")} />
-        <div className="text-xl font-semibold">소개팅보드</div>
-        <HamburgerMenuIcon width={24} height={24} />
+        <div className="text-xl font-semibold flex flex-col items-center justify-center">
+          소개팅보드
+          <div className="text-[#64748B] text-xs">
+            {userGender === "male"
+              ? "여자 사용자의 프로필입니다."
+              : "남자 사용자의 프로필입니다."}
+          </div>
+        </div>
+        <div className="w-6"></div>
       </header>
 
       <section>

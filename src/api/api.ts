@@ -127,7 +127,7 @@ export const matchingUpdate = async ({
   return { data, userData };
 };
 
-export const getMatchesWithProfile = async (userId: string) => {
+export const getMatchesWithProfile = async (userId: number) => {
   const { data: matches, error } = await supabase
     .from("matching")
     .select("target_user_id")
@@ -136,7 +136,7 @@ export const getMatchesWithProfile = async (userId: string) => {
   if (error) throw error;
 
   const profiles = await Promise.all(
-    matches.map(async (match: { target_user_id: string }) => {
+    matches.map(async (match: { target_user_id: number }) => {
       const { data, error } = await supabase
         .from("profile")
         .select("*")

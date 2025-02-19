@@ -5,6 +5,8 @@ import { login } from "../api/api";
 
 export default function Login() {
   const navigate = useNavigate();
+  const searchParams = new URLSearchParams(location.search);
+  const role = searchParams.get("role");
 
   const [form, setForm] = useState({
     studentId: "",
@@ -55,9 +57,11 @@ export default function Login() {
 
       const encryptedQuery = btoa(studentId);
       const genderQuery = btoa(studentGender);
-      navigate(
-        `/dashboard?studentId=${encryptedQuery}&studentGender=${genderQuery}`
-      );
+      const url =
+        role === "dashboard"
+          ? `/dashboard?studentId=${encryptedQuery}&studentGender=${genderQuery}`
+          : `/myPage?studentId=${encryptedQuery}`;
+      navigate(url);
     } catch {
       setErrors((prev) => ({
         ...prev,

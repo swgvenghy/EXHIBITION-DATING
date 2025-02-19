@@ -15,11 +15,19 @@ function App() {
       <section className=" pt-5 flex flex-col items-center gap-6">
         <button
           onClick={() => {
-            navigate("/login");
+            navigate("/login?role=dashboard");
           }}
           className=" w-64 flex items-center justify-center py-5 font-bold text-2xl shadow-xl rounded-2xl"
         >
           다른 사람 카드 보러가기
+        </button>
+        <button
+          onClick={() => {
+            navigate("/login?role=myPage");
+          }}
+          className=" w-64 flex items-center justify-center py-5 font-bold text-2xl shadow-xl rounded-2xl"
+        >
+          내가 뽑은 사람 확인하기
         </button>
         <button
           onClick={() => {

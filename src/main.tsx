@@ -8,6 +8,7 @@ import MathcingBoard from "./pages/matching-board.tsx";
 import Login from "./pages/login.tsx";
 import { Toaster } from "sonner";
 import { SignUpSuccess } from "./pages/sign-up-success.tsx";
+import { MyPage } from "./pages/my-page.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <BrowserRouter>
@@ -18,6 +19,7 @@ createRoot(document.getElementById("root")!).render(
       <Route path="/login" element={<Login />} />
       <Route path="/dashboard" element={<MathcingBoard />} />
       <Route path="/signup/success" element={<SignUpSuccess />} />
+      <Route path="/myPage" element={<MyPage />} />
     </Routes>
     <Toaster />
   </BrowserRouter>
