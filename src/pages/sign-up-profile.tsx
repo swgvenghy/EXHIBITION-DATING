@@ -1,4 +1,4 @@
-import { useState, ChangeEvent } from "react";
+import { useState, ChangeEvent, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Input from "../components/input";
 import { signUp, signUpProfile } from "../api/api";
@@ -10,6 +10,12 @@ export function SignUpProfile() {
   const studentId = Number(searchParams.get("studentId"));
   const studentName = searchParams.get("studentName");
   const gender = searchParams.get("gender");
+
+  useEffect(() => {
+    if (!studentId || !studentName || !gender) {
+      navigate("/signup");
+    }
+  }, [studentId, studentName, gender, navigate]);
 
   const [form, setForm] = useState({
     nickname: "",
@@ -71,7 +77,7 @@ export function SignUpProfile() {
         description: form.description,
         instaProfile: form.instagram,
       });
-      navigate("/");
+      navigate(`/signup/success?gender=${gender}&nickName=${form.nickname}`);
     } catch {
       console.error();
     }

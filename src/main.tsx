@@ -7,6 +7,7 @@ import { SignUpProfile } from "./pages/sign-up-profile.tsx";
 import MathcingBoard from "./pages/matching-board.tsx";
 import Login from "./pages/login.tsx";
 import { Toaster } from "sonner";
+import { SignUpSuccess } from "./pages/sign-up-success.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <BrowserRouter>
@@ -16,6 +17,7 @@ createRoot(document.getElementById("root")!).render(
       <Route path="/signup/profile" element={<SignUpProfile />} />
       <Route path="/login" element={<Login />} />
       <Route path="/dashboard" element={<MathcingBoard />} />
+      <Route path="/signup/success" element={<SignUpSuccess />} />
     </Routes>
     <Toaster />
   </BrowserRouter>
