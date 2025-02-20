@@ -45,9 +45,6 @@ function App() {
         >
           COW 인스타그램
         </button>
-        <button onClick={() => navigate("signup")} className='text-white'>
-          __
-        </button>
       </section>
     </div>
   );
