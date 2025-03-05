@@ -30,7 +30,7 @@ export function SignUpSuccess() {
       </div>
       <button
         className='py-2 px-4 bg-[#0F172A] border text-white rounded-md text-sm mt-5'
-        onClick={() => navigate("/signup")}
+        onClick={() => navigate("/")}
       >
         소개팅 시작하기
       </button>
